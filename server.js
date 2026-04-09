@@ -23,17 +23,24 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     const body = req.body || {};
     const missing = required.filter((k) => !text(body[k]));
     if (missing.length) return res.status(400).json({ ok: false, error: `Missing: ${missing.join(', ')}` });
+    if (!req.file?.buffer?.length) return res.status(400).json({ ok: false, error: 'Photo is required' });
+
     let answers = {};
     if (body.answers) {
       try { answers = typeof body.answers === 'string' ? JSON.parse(body.answers) : body.answers; }
       catch { return res.status(400).json({ ok: false, error: 'Invalid answers JSON' }); }
     }
+
     const siteName = text(body.siteName);
     const latitude = text(body.latitude) || '';
     const longitude = text(body.longitude) || '';
     const folderId = await api.findOrCreateFolder(siteName);
+
     let photoUrl = '';
-    try { photoUrl = await api.uploadFile(folderId, req.file, siteName); } catch {}
+    let warning = '';
+    try { photoUrl = await api.uploadFile(folderId, req.file, siteName); }
+    catch (error) { warning = `Photo upload failed: ${error.message || 'Drive error'}`; }
+
     const row = [
       new Date().toISOString(),
       siteName,
@@ -49,12 +56,16 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       photoUrl,
       JSON.stringify(answers)
     ];
+
     await api.appendToSheet(row);
-    res.json({ ok: true, photoUrl });
+    res.json({ ok: true, photoUrl, warning });
   } catch (error) {
     res.status(500).json({ ok: false, error: error.message || 'Server error' });
   }
 });
 
-if (require.main === module) app.listen(port, host, () => console.log(`listening on ${host}:${port}`));
+if (require.main === module) {
+  app.listen(port, host, () => console.log(`listening on ${host}:${port}`));
+}
+
 module.exports = app;
