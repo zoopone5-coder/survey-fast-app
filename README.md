@@ -1,25 +1,26 @@
 # Fast Survey App
 
-Minimal survey app using Express + vanilla JS + Google Sheets + Google Drive.
+Minimal survey app using Express + vanilla JS + Google Sheets.
 
 ## Setup
 
 1. Run `npm install`
 2. Run `npm run setup`
-3. Create a Google Cloud project, enable **Google Drive API** and **Google Sheets API**
+3. Create a Google Cloud project, enable **Google Sheets API**
 4. Create a **Service Account**, download the JSON key, and set `GOOGLE_APPLICATION_CREDENTIALS`
 5. Create a Google Sheet with columns:
    `Timestamp, Site Name, Village, Taluka, Site HoD Name, Phone, Email, Office Name, Pincode, Latitude, Longitude, Photo URL, Answers JSON`
-6. Share the Sheet and the Drive root folder with the service account email as **Editor**
-7. Put the Drive root folder id and Sheet id in `.env`
+6. Share the Google Sheet with the service account email as **Editor**
+7. Put the Sheet id in `.env`
 8. Run `npm start`
 
 ## Notes
 
 - Site Name is mandatory and used to find/create the Drive folder.
 - GPS can be denied; submission still works with empty latitude/longitude.
-- If photo upload fails, the row is still written with an empty photo URL.
+- The stamped photo is kept on the phone and the sheet stores its stamped file name.
 - Extra answers are accepted as JSON text.
+- Pincode can auto-fill from GPS using reverse geocoding when available.
 
 ## Test
 
@@ -33,6 +34,6 @@ Run `npm test`
 4. In Render, create a new Blueprint service from your repo
 5. Render will read [render.yaml](./render.yaml)
 6. Fill secrets:
-   `GOOGLE_DRIVE_ROOT_FOLDER_ID`, `GOOGLE_SHEET_ID`, and optionally `GOOGLE_SERVICE_ACCOUNT_JSON`
+   `GOOGLE_SHEET_ID`, and optionally `GOOGLE_SERVICE_ACCOUNT_JSON`
 7. If you use `GOOGLE_SERVICE_ACCOUNT_JSON`, remove `GOOGLE_APPLICATION_CREDENTIALS` from the Render env
 8. After deploy, open `/health` to confirm the app is live
