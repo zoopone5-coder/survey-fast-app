@@ -14,6 +14,7 @@ const text = (v) => String(v || '').trim();
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
