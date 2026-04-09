@@ -44,15 +44,10 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
     const body = req.body || {};
     const missing = required.filter((k) => !text(body[k]));
     if (missing.length) return res.status(400).json({ ok: false, error: `Missing: ${missing.join(', ')}` });
-    let answers = {};
-    if (body.answers) {
-      try { answers = typeof body.answers === 'string' ? JSON.parse(body.answers) : body.answers; }
-      catch { return res.status(400).json({ ok: false, error: 'Invalid answers JSON' }); }
-    }
     const siteName = text(body.siteName);
     const latitude = text(body.latitude) || '';
     const longitude = text(body.longitude) || '';
-    const photoLabel = text(body.photoName) || 'Saved on phone';
+    const photoLabel = text(body.photoNames) || 'Saved on phone';
     const row = [
       new Date().toISOString(),
       siteName,
@@ -66,7 +61,7 @@ app.post('/submit', upload.single('photo'), async (req, res) => {
       latitude,
       longitude,
       photoLabel,
-      JSON.stringify(answers)
+      text(body.remarks)
     ];
     await api.appendToSheet(row);
     res.json({ ok: true, photoLabel });
